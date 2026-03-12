@@ -1,10 +1,6 @@
 """
-app.py
-======
 Application Flask — Simulateur d'Épargne Long Terme.
 
-Auteurs : Poezevera Clarisse, Simona Agathe, Rivière Clément
-Cours   : Python — Projet final, Dauphine
 """
 
 from __future__ import annotations

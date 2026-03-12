@@ -1,6 +1,4 @@
 """
-simulator.py
-============
 Module principal du simulateur d'épargne long terme.
 
 Contient :
@@ -8,9 +6,6 @@ Contient :
   - SimulationResult  : classe de résultats avec propriétés calculées
   - simulate_savings  : fonction de simulation déterministe
   - monte_carlo       : fonction de simulation stochastique
-
-Auteurs : [Vos noms]
-Cours   : Python — Projet final, Dauphine
 """
 
 from __future__ import annotations
@@ -364,9 +359,7 @@ def simulate_savings(params: SimulationParams) -> SimulationResult:
 
 def _box_muller() -> float:
     """
-    Génère un nombre aléatoire selon N(0, 1) via l'algorithme Box-Muller.
-
-    Évite toute dépendance à numpy/scipy.
+    Génère un nombre aléatoire selon N(0, 1)
 
     Returns:
         Flottant tiré d'une loi normale standard.
