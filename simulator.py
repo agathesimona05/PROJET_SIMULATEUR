@@ -86,3 +86,34 @@ lass SimulationParams:
     def monthly_rate(self) -> float:
         """Taux mensuel net = (taux − frais) / 12."""
         return (self.rate - self.fees) / 100 / 12
+
+# ── Validation (méthode privée) ───────────────────────────────────────
+
+    @staticmethod
+    def _validate(
+        initial: float,
+        monthly: float,
+        rate: float,
+        years: int,
+        inflation: float,
+        fees: float,
+    ) -> None:
+        """Valide tous les paramètres, lève ValidationError si besoin."""
+        if initial < 0:
+            raise ValidationError("Le capital initial ne peut pas être négatif.")
+        if monthly < 0:
+            raise ValidationError("Le versement mensuel ne peut pas être négatif.")
+        if initial == 0 and monthly == 0:
+            raise ValidationError(
+                "Entrez au moins un capital initial ou un versement mensuel."
+            )
+        if rate < 0:
+            raise ValidationError("Le taux de rendement ne peut pas être négatif.")
+        if not (1 <= years <= 100):
+            raise ValidationError("La durée doit être comprise entre 1 et 100 ans.")
+        if not (0 <= inflation <= 30):
+            raise ValidationError("L'inflation doit être comprise entre 0 et 30 %.")
+        if not (0 <= fees < rate):
+            raise ValidationError(
+                "Les frais doivent être ≥ 0 et strictement inférieurs au taux."
+            )
