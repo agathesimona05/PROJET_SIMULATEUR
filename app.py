@@ -42,7 +42,7 @@ def _parse_params(data: dict) -> SimulationParams:
 @app.route("/")
 def index():
     """Page principale de l'application."""
-    return render_template("index.html")
+    return render_template("site.html")
 
 
 @app.route("/simulate", methods=["POST"])
