@@ -1,3 +1,4 @@
+"""
 Tests unitaires — simulateur d'épargne.
 
 Couvre :
@@ -6,8 +7,9 @@ Couvre :
   - MonteCarloResult  : percentiles, histogramme, __len__
   - simulate_savings  : cas nominaux et cas limites
   - monte_carlo       : propriétés statistiques
+"""
 
-  import math
+import math
 import sys
 import os
 

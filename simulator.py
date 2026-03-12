@@ -1,7 +1,23 @@
+"""
+simulator.py
+============
+Module principal du simulateur d'épargne long terme.
+
+Contient :
+  - SimulationParams  : classe de paramètres (validation à l'init)
+  - SimulationResult  : classe de résultats avec propriétés calculées
+  - simulate_savings  : fonction de simulation déterministe
+  - monte_carlo       : fonction de simulation stochastique
+
+Auteurs : [Vos noms]
+Cours   : Python — Projet final, Dauphine
+"""
+
 from __future__ import annotations
 
 import math
 import random
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # EXCEPTIONS PERSONNALISÉES
@@ -15,7 +31,8 @@ class ValidationError(ValueError):
 # ─────────────────────────────────────────────────────────────────────────────
 # CLASSE : SimulationParams
 # ─────────────────────────────────────────────────────────────────────────────
-lass SimulationParams:
+
+class SimulationParams:
     """
     Paramètres d'une simulation d'épargne.
 
@@ -55,7 +72,7 @@ lass SimulationParams:
         self.inflation = float(inflation)
         self.fees = float(fees)
 
-        # ── Méthodes spéciales ────────────────────────────────────────────────
+    # ── Méthodes spéciales ────────────────────────────────────────────────
 
     def __repr__(self) -> str:
         """Représentation technique, utile pour le débogage."""
@@ -87,7 +104,7 @@ lass SimulationParams:
         """Taux mensuel net = (taux − frais) / 12."""
         return (self.rate - self.fees) / 100 / 12
 
-# ── Validation (méthode privée) ───────────────────────────────────────
+    # ── Validation (méthode privée) ───────────────────────────────────────
 
     @staticmethod
     def _validate(
@@ -118,7 +135,41 @@ lass SimulationParams:
                 "Les frais doivent être ≥ 0 et strictement inférieurs au taux."
             )
 
-# ── Méthodes spéciales ────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLASSE : SimulationResult
+# ─────────────────────────────────────────────────────────────────────────────
+
+class SimulationResult:
+    """
+    Résultat d'une simulation déterministe d'épargne.
+
+    Stocke les séries temporelles annuelles et expose les métriques
+    clés comme des propriétés calculées (accès sans parenthèses).
+
+    Attributes:
+        capitals  : Capital brut pour chaque année (année 0 incluse).
+        investeds : Total investi cumulé pour chaque année.
+        reals     : Capital corrigé de l'inflation pour chaque année.
+
+    Example:
+        >>> p = SimulationParams(5000, 200, 7.0, 20, 2.0, 0.5)
+        >>> r = simulate_savings(p)
+        >>> r.final_capital > r.total_invested
+        True
+    """
+
+    def __init__(
+        self,
+        capitals: list[float],
+        investeds: list[float],
+        reals: list[float],
+    ) -> None:
+        self.capitals = capitals
+        self.investeds = investeds
+        self.reals = reals
+
+    # ── Méthodes spéciales ────────────────────────────────────────────────
 
     def __repr__(self) -> str:
         return (
@@ -170,6 +221,7 @@ lass SimulationParams:
             return 0.0
         return (self.final_capital / self.total_invested - 1) * 100
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CLASSE : MonteCarloResult
 # ─────────────────────────────────────────────────────────────────────────────
@@ -220,7 +272,8 @@ class MonteCarloResult:
     def p10(self) -> float:
         """10e percentile — scénario pessimiste."""
         return self._percentile(10)
-@property
+
+    @property
     def p50(self) -> float:
         """50e percentile — scénario médian."""
         return self._percentile(50)
@@ -308,6 +361,7 @@ def simulate_savings(params: SimulationParams) -> SimulationResult:
 
     return SimulationResult(capitals, investeds, reals)
 
+
 def _box_muller() -> float:
     """
     Génère un nombre aléatoire selon N(0, 1) via l'algorithme Box-Muller.
@@ -355,7 +409,6 @@ def monte_carlo(
 
     finals: list[float] = []
 
-
     for _ in range(n_runs):
         capital = params.initial
 
@@ -371,4 +424,3 @@ def monte_carlo(
         finals.append(capital)
 
     return MonteCarloResult(finals)
-
