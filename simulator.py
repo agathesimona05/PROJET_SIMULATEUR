@@ -117,3 +117,55 @@ lass SimulationParams:
             raise ValidationError(
                 "Les frais doivent être ≥ 0 et strictement inférieurs au taux."
             )
+
+# ── Méthodes spéciales ────────────────────────────────────────────────
+
+    def __repr__(self) -> str:
+        return (
+            f"SimulationResult("
+            f"{len(self)} ans, "
+            f"final={self.final_capital:,.0f} €, "
+            f"réel={self.final_real:,.0f} €)"
+        )
+
+    def __str__(self) -> str:
+        return (
+            f"Capital final  : {self.final_capital:>14,.2f} €\n"
+            f"Capital réel   : {self.final_real:>14,.2f} €\n"
+            f"Total investi  : {self.total_invested:>14,.2f} €\n"
+            f"Intérêts       : {self.total_interest:>14,.2f} €\n"
+            f"Plus-value     : {self.gain_pct:>13.1f} %"
+        )
+
+    def __len__(self) -> int:
+        """Nombre d'années simulées (sans compter l'année 0)."""
+        return len(self.capitals) - 1
+
+    # ── Propriétés calculées ──────────────────────────────────────────────
+
+    @property
+    def final_capital(self) -> float:
+        """Capital brut à la fin de la simulation."""
+        return self.capitals[-1]
+
+    @property
+    def final_real(self) -> float:
+        """Capital réel final, corrigé de l'inflation cumulée."""
+        return self.reals[-1]
+
+    @property
+    def total_invested(self) -> float:
+        """Montant total versé sur toute la durée."""
+        return self.investeds[-1]
+
+    @property
+    def total_interest(self) -> float:
+        """Intérêts générés = capital final − total investi."""
+        return self.final_capital - self.total_invested
+
+    @property
+    def gain_pct(self) -> float:
+        """Plus-value totale en % par rapport au capital investi."""
+        if self.total_invested == 0:
+            return 0.0
+        return (self.final_capital / self.total_invested - 1) * 100
