@@ -3,7 +3,19 @@ from __future__ import annotations
 import math
 import random
 
-class SimulationParams:
+# ─────────────────────────────────────────────────────────────────────────────
+# EXCEPTIONS PERSONNALISÉES
+# ─────────────────────────────────────────────────────────────────────────────
+
+class ValidationError(ValueError):
+    """Levée quand les paramètres fournis sont invalides."""
+    pass
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLASSE : SimulationParams
+# ─────────────────────────────────────────────────────────────────────────────
+lass SimulationParams:
     """
     Paramètres d'une simulation d'épargne.
 
@@ -42,65 +54,3 @@ class SimulationParams:
         self.years = int(years)
         self.inflation = float(inflation)
         self.fees = float(fees)
-
-    # ── Méthodes spéciales ────────────────────────────────────────────────
-
-    def __repr__(self) -> str:
-        """Représentation technique, utile pour le débogage."""
-        return (
-            f"SimulationParams("
-            f"initial={self.initial}, monthly={self.monthly}, "
-            f"rate={self.rate}%, years={self.years}, "
-            f"inflation={self.inflation}%, fees={self.fees}%)"
-        )
-
-    def __str__(self) -> str:
-        """Représentation lisible pour l'utilisateur."""
-        return (
-            f"Simulation sur {self.years} ans — "
-            f"capital initial {self.initial:,.0f} € — "
-            f"versement {self.monthly:,.0f} €/mois — "
-            f"taux net réel {self.net_rate:.2f} %/an"
-        )
-
-    # ── Propriétés calculées ──────────────────────────────────────────────
-
-    @property
-    def net_rate(self) -> float:
-        """Taux net réel = taux brut − frais − inflation."""
-        return self.rate - self.fees - self.inflation
-
-    @property
-    def monthly_rate(self) -> float:
-        """Taux mensuel net = (taux − frais) / 12."""
-        return (self.rate - self.fees) / 100 / 12
-# ── Validation (méthode privée) ───────────────────────────────────────
-
-    @staticmethod
-    def _validate(
-        initial: float,
-        monthly: float,
-        rate: float,
-        years: int,
-        inflation: float,
-        fees: float,
-    ) -> None:
-        """Valide tous les paramètres, lève ValidationError si besoin."""
-        if initial < 0:
-            raise ValidationError("Le capital initial ne peut pas être négatif.")
-        if monthly < 0:
-            raise ValidationError("Le versement mensuel ne peut pas être négatif.")
-        if initial == 0 and monthly == 0:
-            raise ValidationError(
-                "Entrez au moins un capital initial ou un versement mensuel."
-            )
-        if rate < 0:
-            raise ValidationError("Le taux de rendement ne peut pas être négatif.")
-        if not (1 <= years <= 100):
-            raise ValidationError("La durée doit être comprise entre 1 et 100 ans.")
-        if not (0 <= inflation <= 30):
-            raise ValidationError("L'inflation doit être comprise entre 0 et 30 %.")
-        if not (0 <= fees < rate):
-            raise ValidationError(
-                "Les frais doivent être ≥ 0 et strictement inférieurs au taux."
-            )
