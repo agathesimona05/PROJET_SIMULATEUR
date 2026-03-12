@@ -101,3 +101,71 @@ class TestSimulationParams:
         with pytest.raises(ValidationError, match="frais"):
             SimulationParams(1000, 100, 5, 10, 2, 5)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SimulationResult — propriétés et méthodes spéciales
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestSimulationResult:
+
+    def test_len_retourne_nombre_annees(self, result, params):
+        assert len(result) == params.years
+
+    def test_final_capital_est_dernier_element(self, result):
+        assert result.final_capital == result.capitals[-1]
+
+    def test_final_real_est_dernier_element(self, result):
+        assert result.final_real == result.reals[-1]
+
+    def test_total_interest_calcul(self, result):
+        expected = result.final_capital - result.total_invested
+        assert result.total_interest == pytest.approx(expected)
+
+    def test_gain_pct_positif(self, result):
+        assert result.gain_pct > 0
+
+    def test_capital_croissant(self, result):
+        for i in range(1, len(result.capitals)):
+            assert result.capitals[i] > result.capitals[i - 1]
+
+    def test_capital_reel_inferieur_au_nominal(self, result):
+        """Avec inflation > 0, le capital réel doit être < capital brut."""
+        assert result.final_real < result.final_capital
+
+    def test_str_contient_capital_final(self, result):
+        assert "Capital final" in str(result)
+
+    def test_repr_contient_final(self, result):
+        assert "final=" in repr(result)
+
+    def test_annee_zero_est_capital_initial(self, params):
+        r = simulate_savings(params)
+        assert r.capitals[0] == params.initial
+        assert r.investeds[0] == params.initial
+        assert r.reals[0] == params.initial
+
+    def test_sans_inflation_reel_egal_nominal(self):
+        p = SimulationParams(5000, 100, 5.0, 10, 0.0, 0.3)
+        r = simulate_savings(p)
+        assert abs(r.final_real - r.final_capital) < 1e-4
+
+    def test_capitalisation_un_an_sans_versement(self):
+        """Vérifie manuellement la formule sur 1 an."""
+        p = SimulationParams(10000, 0, 12.0, 1, 0.0, 0.0)
+        r = simulate_savings(p)
+        # Taux mensuel = 1 %, donc 10000 * 1.01^12
+        expected = 10000 * (1.01 ** 12)
+        assert abs(r.final_capital - expected) < 0.01
+    
+    def test_total_investi_sans_versement(self):
+        """Sans versement mensuel, le total investi reste constant."""
+        p = SimulationParams(10000, 0, 5.0, 10, 1.0, 0.2)
+        r = simulate_savings(p)
+        assert r.total_invested == pytest.approx(10000)
+
+    def test_total_investi_avec_versements(self):
+        """Total investi = initial + monthly * 12 * years."""
+        p = SimulationParams(0, 100, 5.0, 10, 1.0, 0.5)
+        r = simulate_savings(p)
+        expected = 100 * 12 * 10
+        assert abs(r.total_invested - expected) < 1
